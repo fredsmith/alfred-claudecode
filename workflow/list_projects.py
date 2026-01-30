@@ -65,6 +65,8 @@ def format_alfred_items(projects, action, base_dirs_configured, base_dirs_found)
     for project in projects:
         if action == "vscode":
             subtitle = f"Open in VS Code: {project['path']}"
+        elif action == "github":
+            subtitle = f"Open on GitHub: {project['path']}"
         else:
             subtitle = f"Open in Claude Code: {project['path']}"
 
