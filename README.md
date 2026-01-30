@@ -6,6 +6,7 @@ An Alfred workflow to quickly launch VS Code or Claude Code in your project dire
 
 - **`vs` keyword**: Search and open projects in VS Code
 - **`cc` keyword**: Search and open projects in Claude Code (Terminal)
+- **`gh` keyword**: Search and open projects on GitHub in browser
 - **Configurable project directories**: Set multiple directories to search
 - **Fuzzy search**: Filter projects by typing part of the name
 - **Cmd+Enter**: Reveal project in Finder
@@ -58,6 +59,13 @@ Example:
 2. Type `cc` followed by a space
 3. Start typing to filter projects
 4. Press Enter to open in Terminal with Claude Code
+
+### Open on GitHub
+
+1. Invoke Alfred (Cmd+Space or your hotkey)
+2. Type `gh` followed by a space
+3. Start typing to filter projects
+4. Press Enter to open the GitHub repo in your browser
 
 ### Modifiers
 
