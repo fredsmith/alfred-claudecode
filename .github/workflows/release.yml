@@ -1,0 +1,51 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate CalVer tag
+        id: calver
+        run: |
+          # Base tag is today's date
+          BASE_TAG=$(date +%Y.%m.%d)
+
+          # Fetch existing tags
+          git fetch --tags
+
+          # Check if base tag exists, if so increment
+          TAG="$BASE_TAG"
+          COUNTER=1
+          while git tag -l | grep -q "^${TAG}$"; do
+            TAG="${BASE_TAG}.${COUNTER}"
+            COUNTER=$((COUNTER + 1))
+          done
+
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Generated tag: $TAG"
+
+      - name: Build workflow package
+        run: |
+          cd workflow
+          zip -r ../Claude-Code-Launcher.alfredworkflow .
+          cd ..
+          ls -la Claude-Code-Launcher.alfredworkflow
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.calver.outputs.tag }}
+          name: Release ${{ steps.calver.outputs.tag }}
+          generate_release_notes: true
+          files: Claude-Code-Launcher.alfredworkflow
