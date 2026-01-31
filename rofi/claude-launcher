@@ -1,0 +1,108 @@
+#!/bin/bash
+# Main launcher script for rofi-based project launcher
+# Usage: claude-launcher [vs|cc|gh]
+
+set -e
+
+# Determine the script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Default to VS Code if no argument
+ACTION="${1:-vs}"
+
+# Function to get project selection from rofi
+get_project_selection() {
+    "$SCRIPT_DIR/list_projects.py" | rofi -dmenu -i -p "Select project:" -format "s" -no-custom
+}
+
+# Get selected project path
+PROJECT_PATH=$(get_project_selection)
+
+# Exit if no selection made
+if [ -z "$PROJECT_PATH" ]; then
+    exit 0
+fi
+
+# Handle the action based on the argument
+case "$ACTION" in
+    vs|vscode)
+        # Launch VS Code
+        if command -v code &> /dev/null; then
+            code "$PROJECT_PATH"
+        else
+            notify-send "Error" "VS Code (code) not found in PATH"
+            exit 1
+        fi
+        ;;
+    cc|claude)
+        # Launch Claude Code in terminal
+        if command -v claude &> /dev/null; then
+            # Detect terminal emulator
+            if [ -n "$TERMINAL" ]; then
+                $TERMINAL -e bash -c "cd '$PROJECT_PATH' && claude"
+            elif command -v x-terminal-emulator &> /dev/null; then
+                x-terminal-emulator -e bash -c "cd '$PROJECT_PATH' && claude"
+            elif command -v gnome-terminal &> /dev/null; then
+                gnome-terminal -- bash -c "cd '$PROJECT_PATH' && claude; exec bash"
+            elif command -v konsole &> /dev/null; then
+                konsole -e bash -c "cd '$PROJECT_PATH' && claude; exec bash"
+            elif command -v xfce4-terminal &> /dev/null; then
+                xfce4-terminal -e "bash -c 'cd \"$PROJECT_PATH\" && claude; exec bash'"
+            elif command -v alacritty &> /dev/null; then
+                alacritty -e bash -c "cd '$PROJECT_PATH' && claude; exec bash"
+            elif command -v kitty &> /dev/null; then
+                kitty bash -c "cd '$PROJECT_PATH' && claude; exec bash"
+            elif command -v wezterm &> /dev/null; then
+                wezterm start --cwd "$PROJECT_PATH" -- claude
+            else
+                notify-send "Error" "No terminal emulator found. Set TERMINAL environment variable."
+                exit 1
+            fi
+        else
+            notify-send "Error" "Claude Code (claude) not found in PATH"
+            exit 1
+        fi
+        ;;
+    gh|github)
+        # Open GitHub repo in browser
+        cd "$PROJECT_PATH" || exit 1
+        URL=$(git remote get-url origin 2>/dev/null | sed 's/git@github.com:/https:\/\/github.com\//' | sed 's/\.git$//')
+
+        if [ -n "$URL" ]; then
+            if command -v xdg-open &> /dev/null; then
+                xdg-open "$URL"
+            elif command -v open &> /dev/null; then
+                open "$URL"
+            else
+                notify-send "Error" "No browser opener found (xdg-open)"
+                exit 1
+            fi
+        else
+            notify-send "Error" "Not a git repository or no remote origin found"
+            exit 1
+        fi
+        ;;
+    fm|files)
+        # Open in file manager
+        if command -v xdg-open &> /dev/null; then
+            xdg-open "$PROJECT_PATH"
+        elif command -v nautilus &> /dev/null; then
+            nautilus "$PROJECT_PATH"
+        elif command -v dolphin &> /dev/null; then
+            dolphin "$PROJECT_PATH"
+        elif command -v thunar &> /dev/null; then
+            thunar "$PROJECT_PATH"
+        else
+            notify-send "Error" "No file manager found"
+            exit 1
+        fi
+        ;;
+    *)
+        echo "Usage: $0 [vs|cc|gh|fm]"
+        echo "  vs - Open in VS Code"
+        echo "  cc - Open in Claude Code (terminal)"
+        echo "  gh - Open GitHub repo in browser"
+        echo "  fm - Open in file manager"
+        exit 1
+        ;;
+esac

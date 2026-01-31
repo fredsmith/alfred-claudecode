@@ -1,0 +1,16 @@
+// Example rofi config with projects integration
+// Copy to ~/.config/rofi/config.rasi or merge with your existing config
+
+configuration {
+    modi: "combi,drun,window,run";
+    // Use script:path syntax to include the projects launcher
+    combi-modi: "drun,run,window,script:~/.local/bin/projects.sh";
+    show: "combi";
+
+    // Optional: other settings
+    font: "mono 12";
+    terminal: "konsole";  // or your preferred terminal
+}
+
+// Note: On Wayland (KDE Plasma), window mode may not work
+// If you see warnings, remove 'window' from modi and combi-modi above

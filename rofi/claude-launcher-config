@@ -1,0 +1,49 @@
+#!/bin/bash
+# Configuration script for claude-launcher
+# Creates or edits the configuration file for project directories
+
+set -e
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/claude-launcher"
+CONFIG_FILE="$CONFIG_DIR/config.json"
+
+# Create config directory if it doesn't exist
+mkdir -p "$CONFIG_DIR"
+
+# Check if config file exists
+if [ -f "$CONFIG_FILE" ]; then
+    echo "Current configuration:"
+    cat "$CONFIG_FILE"
+    echo ""
+    echo "Edit configuration? (y/n)"
+    read -r response
+    if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
+        exit 0
+    fi
+fi
+
+echo "Configure project directories"
+echo "=============================="
+echo ""
+echo "Enter project directories separated by colons (:)"
+echo "Use ~ for home directory"
+echo "Example: ~/projects:~/src/github.com/username:~/work"
+echo ""
+echo -n "Project directories: "
+read -r PROJECT_DIRS
+
+# Create JSON config
+cat > "$CONFIG_FILE" << EOF
+{
+  "project_dirs": "$PROJECT_DIRS"
+}
+EOF
+
+echo ""
+echo "Configuration saved to: $CONFIG_FILE"
+echo ""
+echo "You can now use:"
+echo "  claude-launcher vs   - Open in VS Code"
+echo "  claude-launcher cc   - Open in Claude Code"
+echo "  claude-launcher gh   - Open on GitHub"
+echo "  claude-launcher fm   - Open in file manager"
