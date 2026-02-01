@@ -1,23 +1,44 @@
-# Alfred Claude Code Launcher
+# Claude Code Launcher
 
-An Alfred workflow to quickly launch VS Code or Claude Code in your project directories.
+A project launcher for quickly opening your projects in VS Code, Claude Code (terminal), or GitHub. Supports both **macOS** (Alfred) and **Linux** (rofi).
 
 ## Features
 
-- **`vs` keyword**: Search and open projects in VS Code
-- **`cc` keyword**: Search and open projects in Claude Code (Terminal)
-- **`gh` keyword**: Search and open projects on GitHub in browser
-- **Configurable project directories**: Set multiple directories to search
+- **VS Code launcher**: Search and open projects in VS Code
+- **Claude Code launcher**: Open projects in Claude Code via terminal
+- **GitHub launcher**: Open projects on GitHub in your browser
+- **File manager**: Reveal projects in Finder (macOS) or file manager (Linux)
 - **Fuzzy search**: Filter projects by typing part of the name
-- **Cmd+Enter**: Reveal project in Finder
+- **Configurable directories**: Set multiple directories to search
 
-## Installation
+| Feature | Alfred (macOS) | Rofi (Linux) |
+|---------|---------------|--------------|
+| VS Code launcher | `vs` keyword | `claude-launcher vs` |
+| Claude Code launcher | `cc` keyword | `claude-launcher cc` |
+| GitHub launcher | `gh` keyword | `claude-launcher gh` |
+| File manager | Cmd+Enter modifier | `claude-launcher fm` |
+| Configuration | Alfred workflow variables | `claude-launcher-config` |
+| Fuzzy search | ✓ | ✓ |
+| Keyboard shortcuts | ✓ | ✓ (via WM) |
 
-### Option 1: Download Release
+---
+
+## Alfred (macOS)
+
+### Requirements
+
+- [Alfred](https://www.alfredapp.com/) with Powerpack
+- [VS Code](https://code.visualstudio.com/) (for `vs` keyword)
+- [Claude Code CLI](https://claude.ai/code) (for `cc` keyword)
+- Python 3 (included with macOS)
+
+### Installation
+
+#### Option 1: Download Release
 
 Download the latest `.alfredworkflow` file from the [Releases](https://github.com/fredsmith/alfred-claudecode/releases) page and double-click to install.
 
-### Option 2: Manual Installation
+#### Option 2: Manual Installation
 
 1. Clone this repository
 2. Create the workflow package:
@@ -29,7 +50,7 @@ Download the latest `.alfredworkflow` file from the [Releases](https://github.co
 
 3. Double-click `Claude-Code-Launcher.alfredworkflow` to install
 
-## Configuration
+### Configuration
 
 After installing, configure your project directories:
 
@@ -44,43 +65,36 @@ Example:
 ~/src/github.com/fredsmith:~/claude-working:~/projects
 ```
 
-## Usage
+### Usage
 
-### Open in VS Code
+#### Open in VS Code
 
 1. Invoke Alfred (Cmd+Space or your hotkey)
 2. Type `vs` followed by a space
 3. Start typing to filter projects
 4. Press Enter to open in VS Code
 
-### Open in Claude Code
+#### Open in Claude Code
 
 1. Invoke Alfred (Cmd+Space or your hotkey)
 2. Type `cc` followed by a space
 3. Start typing to filter projects
 4. Press Enter to open in Terminal with Claude Code
 
-### Open on GitHub
+#### Open on GitHub
 
 1. Invoke Alfred (Cmd+Space or your hotkey)
 2. Type `gh` followed by a space
 3. Start typing to filter projects
 4. Press Enter to open the GitHub repo in your browser
 
-### Modifiers
+#### Modifiers
 
 - **Cmd+Enter**: Reveal the selected project in Finder
 
-## Requirements
+### Customization
 
-- [Alfred](https://www.alfredapp.com/) with Powerpack
-- [VS Code](https://code.visualstudio.com/) (for `vs` keyword)
-- [Claude Code CLI](https://claude.ai/claude-code) (for `cc` keyword)
-- Python 3 (included with macOS)
-
-## Customization
-
-### VS Code Command Path
+#### VS Code Command Path
 
 If `code` is not in `/usr/local/bin/`, edit the workflow:
 
@@ -88,9 +102,72 @@ If `code` is not in `/usr/local/bin/`, edit the workflow:
 2. Double-click the "Open VS Code" action
 3. Update the path to your `code` command
 
-### Terminal App
+#### Terminal App
 
-The workflow uses the default Terminal app. To use a different terminal (like iTerm), edit the "Open Claude Code" action's AppleScript.
+The workflow uses Ghostty if installed, otherwise falls back to the default Terminal app. To use a different terminal (like iTerm), edit the "Open Claude Code" action's script.
+
+---
+
+## Rofi (Linux)
+
+### Requirements
+
+- [rofi](https://github.com/davatorium/rofi) - Application launcher
+- `python3` - For project listing script
+- `code` (optional) - VS Code CLI
+- `claude` (optional) - Claude Code CLI
+- `git` (optional) - For GitHub integration
+
+### Installation
+
+Run the installation script (or use `task install-rofi`):
+
+```bash
+./rofi/install.sh
+```
+
+This will:
+1. Install scripts to `~/.local/bin`
+2. Configure your project directories
+3. Automatically update `~/.config/rofi/config.rasi` to add project integration
+
+Ensure `~/.local/bin` is in your PATH:
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+### Configuration
+
+Edit your project directories anytime:
+```bash
+claude-launcher-config
+```
+
+Enter directories separated by colons (e.g., `~/projects:~/src/github.com/username`).
+
+Configuration is stored in `~/.config/claude-launcher/config.json`.
+
+### Usage
+
+Projects appear in rofi combi mode with action suffixes:
+- `my-project (VS Code)` - Opens in VS Code
+- `my-project (Claude)` - Opens in Claude Code terminal
+- `my-project (GitHub)` - Opens GitHub repo in browser
+
+Or use standalone commands:
+
+```bash
+claude-launcher vs   # Open in VS Code
+claude-launcher cc   # Open in Claude Code (terminal)
+claude-launcher gh   # Open on GitHub
+claude-launcher fm   # Open in file manager
+```
+
+### Terminal Detection
+
+The script auto-detects your terminal (ghostty, gnome-terminal, konsole, alacritty, kitty, wezterm, etc.) or uses the `$TERMINAL` environment variable.
+
+---
 
 ## License
 
