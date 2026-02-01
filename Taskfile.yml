@@ -1,0 +1,28 @@
+version: '3'
+
+vars:
+  WORKFLOW_NAME: claude-code-launcher
+  BUILD_DIR: build
+
+tasks:
+  build-alfred:
+    desc: Build the Alfred workflow package
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - cd workflow && zip -r ../{{.BUILD_DIR}}/{{.WORKFLOW_NAME}}.alfredworkflow .
+    sources:
+      - workflow/**/*
+    generates:
+      - "{{.BUILD_DIR}}/{{.WORKFLOW_NAME}}.alfredworkflow"
+
+  install-alfred:
+    desc: Build and install the Alfred workflow
+    deps:
+      - build-alfred
+    cmds:
+      - open {{.BUILD_DIR}}/{{.WORKFLOW_NAME}}.alfredworkflow
+
+  install-rofi:
+    desc: Install the rofi launcher integration (Linux)
+    cmds:
+      - ./rofi/install.sh
