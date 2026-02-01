@@ -167,10 +167,14 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>script</key>
-				<string>osascript -e "tell application \"Terminal\"
-    activate
-    do script \"cd '$1' &amp;&amp; claude\"
-end tell"</string>
+				<string>if [ -d "/Applications/Ghostty.app" ]; then
+    /Applications/Ghostty.app/Contents/MacOS/ghostty --working-directory="$1" -e fish -lic "claude"
+else
+    osascript -e "tell application \"Terminal\"
+        activate
+        do script \"cd '$1' &amp;&amp; claude\"
+    end tell"
+fi</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
