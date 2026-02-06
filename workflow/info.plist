@@ -168,7 +168,7 @@
 				<integer>102</integer>
 				<key>script</key>
 				<string>if [ -d "/Applications/Ghostty.app" ]; then
-    /Applications/Ghostty.app/Contents/MacOS/ghostty --working-directory="$1" -e fish -lic "claude"
+    nohup /Applications/Ghostty.app/Contents/MacOS/ghostty --title="$(basename "$1")" --working-directory="$1" -e fish -lic "claude" &gt; /dev/null 2&gt;&amp;1 &amp;
 else
     osascript -e "tell application \"Terminal\"
         activate
