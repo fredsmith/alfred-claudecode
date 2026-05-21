@@ -75,6 +75,19 @@
 				<false/>
 			</dict>
 		</array>
+		<key>A1B2C3D4-REVIEW-INPUT</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A1B2C3D4-REVIEW-ACTION</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 	</dict>
 	<key>createdby</key>
 	<string>Fred Smith</string>
@@ -335,6 +348,54 @@ fi</string>
 			<key>version</key>
 			<integer>2</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>review</string>
+				<key>subtext</key>
+				<string>Paste a GitHub PR URL, then any prompt</string>
+				<key>text</key>
+				<string>Review PR</string>
+				<key>title</key>
+				<string>Review GitHub PR</string>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>A1B2C3D4-REVIEW-INPUT</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string>bash review.sh "$1"</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>A1B2C3D4-REVIEW-ACTION</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string>## Claude Code Launcher
@@ -344,6 +405,8 @@ Launch VS Code or Claude Code in your project directories.
 ### Keywords
 - `vs` - Open project in VS Code
 - `cc` - Open project in Claude Code (Terminal)
+- `gh` - Open project on GitHub
+- `review &lt;pr-url&gt; [prompt]` - Check out the PR branch in `~/src/github.com/&lt;owner&gt;/&lt;repo&gt;` and launch Claude Code with the optional prompt
 
 ### Configuration
 Set the `project_dirs` workflow variable to a colon-separated list of directories:
@@ -402,6 +465,20 @@ Example: `~/src/github.com/fredsmith:~/claude-working`
 			<real>100.0</real>
 			<key>ypos</key>
 			<real>50.0</real>
+		</dict>
+		<key>A1B2C3D4-REVIEW-INPUT</key>
+		<dict>
+			<key>xpos</key>
+			<real>100.0</real>
+			<key>ypos</key>
+			<real>650.0</real>
+		</dict>
+		<key>A1B2C3D4-REVIEW-ACTION</key>
+		<dict>
+			<key>xpos</key>
+			<real>350.0</real>
+			<key>ypos</key>
+			<real>650.0</real>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
