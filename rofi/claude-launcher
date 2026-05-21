@@ -1,6 +1,6 @@
 #!/bin/bash
 # Main launcher script for rofi-based project launcher
-# Usage: claude-launcher [vs|cc|gh]
+# Usage: claude-launcher [vs|cc|gh|fm|review]
 
 set -e
 
@@ -14,6 +14,100 @@ ACTION="${1:-vs}"
 get_project_selection() {
     "$SCRIPT_DIR/list_projects.py" | rofi -dmenu -i -p "Select project:" -format "s" -no-custom
 }
+
+# Function to launch a terminal running a given script file. Uses the first
+# detected terminal emulator (or $TERMINAL if set).
+launch_terminal_with_script() {
+    local script="$1"
+    if [ -n "$TERMINAL" ]; then
+        $TERMINAL -e bash "$script"
+    elif command -v x-terminal-emulator &> /dev/null; then
+        x-terminal-emulator -e bash "$script"
+    elif command -v ghostty &> /dev/null; then
+        ghostty -e bash "$script"
+    elif command -v gnome-terminal &> /dev/null; then
+        gnome-terminal -- bash "$script"
+    elif command -v konsole &> /dev/null; then
+        konsole -e bash "$script"
+    elif command -v xfce4-terminal &> /dev/null; then
+        xfce4-terminal -e "bash $script"
+    elif command -v alacritty &> /dev/null; then
+        alacritty -e bash "$script"
+    elif command -v kitty &> /dev/null; then
+        kitty bash "$script"
+    elif command -v wezterm &> /dev/null; then
+        wezterm start -- bash "$script"
+    else
+        notify-send "Error" "No terminal emulator found. Set TERMINAL environment variable."
+        return 1
+    fi
+}
+
+# "review" is special: it takes a PR URL (and optional prompt) instead of a
+# project from the list. Handle it before the project picker runs.
+if [ "$ACTION" = "review" ]; then
+    if ! command -v gh &> /dev/null; then
+        notify-send "Review" "GitHub CLI (gh) not found in PATH"
+        exit 1
+    fi
+    if ! command -v claude &> /dev/null; then
+        notify-send "Review" "Claude Code (claude) not found in PATH"
+        exit 1
+    fi
+
+    # Collect any args after "review" as the initial query (URL + optional prompt)
+    QUERY="${*:2}"
+    if [ -z "$QUERY" ]; then
+        QUERY=$(rofi -dmenu -p "PR URL [+ prompt]:" -lines 0 < /dev/null)
+    fi
+    if [ -z "$QUERY" ]; then
+        exit 0
+    fi
+
+    # First whitespace-separated token is the URL; the rest is the prompt.
+    URL="${QUERY%%[[:space:]]*}"
+    if [ "$URL" = "$QUERY" ]; then
+        PROMPT=""
+    else
+        PROMPT="${QUERY#*[[:space:]]}"
+    fi
+
+    if [[ "$URL" =~ github\.com/([^/]+)/([^/]+)/pull/([0-9]+) ]]; then
+        OWNER="${BASH_REMATCH[1]}"
+        REPO="${BASH_REMATCH[2]}"
+        PR_NUMBER="${BASH_REMATCH[3]}"
+    else
+        notify-send "Review" "Not a recognizable GitHub PR URL: $URL"
+        exit 1
+    fi
+
+    REPO_PATH="$HOME/src/github.com/$OWNER/$REPO"
+    if [ ! -d "$REPO_PATH" ]; then
+        notify-send "Review" "Repo not found at $REPO_PATH. Clone it first."
+        exit 1
+    fi
+
+    # Write the in-terminal commands to a temp script so the prompt can be
+    # safely shell-quoted. On error we keep the window open by exec'ing bash.
+    TMP_SCRIPT=$(mktemp --suffix=.sh)
+    {
+        echo '#!/bin/bash'
+        printf 'cd %q || { echo "ERROR: cd failed"; exec bash; }\n' "$REPO_PATH"
+        printf 'echo "Checking out PR #%s..."\n' "$PR_NUMBER"
+        printf 'gh pr checkout %s || { echo "ERROR: gh pr checkout failed"; exec bash; }\n' "$PR_NUMBER"
+        echo 'echo'
+        if [ -n "$PROMPT" ]; then
+            printf 'claude %q\n' "$PROMPT"
+        else
+            echo 'claude'
+        fi
+        printf 'rm -f %q\n' "$TMP_SCRIPT"
+    } > "$TMP_SCRIPT"
+    chmod +x "$TMP_SCRIPT"
+
+    launch_terminal_with_script "$TMP_SCRIPT"
+    exit 0
+fi
 
 # Get selected project path
 PROJECT_PATH=$(get_project_selection)
@@ -98,11 +192,12 @@ case "$ACTION" in
         fi
         ;;
     *)
-        echo "Usage: $0 [vs|cc|gh|fm]"
-        echo "  vs - Open in VS Code"
-        echo "  cc - Open in Claude Code (terminal)"
-        echo "  gh - Open GitHub repo in browser"
-        echo "  fm - Open in file manager"
+        echo "Usage: $0 [vs|cc|gh|fm|review]"
+        echo "  vs                          Open in VS Code"
+        echo "  cc                          Open in Claude Code (terminal)"
+        echo "  gh                          Open GitHub repo in browser"
+        echo "  fm                          Open in file manager"
+        echo "  review <pr-url> [prompt]    Check out a GitHub PR locally and launch Claude Code"
         exit 1
         ;;
 esac

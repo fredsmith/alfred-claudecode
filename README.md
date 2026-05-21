@@ -16,6 +16,7 @@ A project launcher for quickly opening your projects in VS Code, Claude Code (te
 | VS Code launcher | `vs` keyword | `claude-launcher vs` |
 | Claude Code launcher | `cc` keyword | `claude-launcher cc` |
 | GitHub launcher | `gh` keyword | `claude-launcher gh` |
+| PR review launcher | `review` keyword | `claude-launcher review` |
 | File manager | Cmd+Enter modifier | `claude-launcher fm` |
 | Configuration | Alfred workflow variables | `claude-launcher-config` |
 | Fuzzy search | ✓ | ✓ |
@@ -29,7 +30,8 @@ A project launcher for quickly opening your projects in VS Code, Claude Code (te
 
 - [Alfred](https://www.alfredapp.com/) with Powerpack
 - [VS Code](https://code.visualstudio.com/) (for `vs` keyword)
-- [Claude Code CLI](https://claude.ai/code) (for `cc` keyword)
+- [Claude Code CLI](https://claude.ai/code) (for `cc` and `review` keywords)
+- [GitHub CLI](https://cli.github.com/) (`gh`, for `review` keyword)
 - Python 3 (included with macOS)
 
 ### Installation
@@ -87,6 +89,21 @@ Example:
 2. Type `gh` followed by a space
 3. Start typing to filter projects
 4. Press Enter to open the GitHub repo in your browser
+
+#### Review a GitHub PR
+
+1. Invoke Alfred (Cmd+Space or your hotkey)
+2. Type `review` followed by a space, then paste a GitHub PR URL
+3. Optionally add a prompt after the URL — it will be passed to Claude Code as the initial prompt
+4. Press Enter
+
+The action expects the repo cloned at `~/src/github.com/<owner>/<repo>`. It runs `gh pr checkout <number>` inside that directory and then launches `claude` (with your prompt, if any).
+
+Example:
+
+```text
+review https://github.com/wanderu/infrastructure-as-code/pull/193 is this going to cause the database to be deleted and recreated?
+```
 
 #### Modifiers
 
