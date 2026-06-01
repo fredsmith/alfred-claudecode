@@ -1,18 +1,19 @@
 #!/bin/bash
-# Alfred "review" action: given a GitHub PR URL (and optional prompt),
-# open a terminal, check out the PR branch into a worktree under
-# .worktrees/<pr-branch> inside the local clone, and run claude there.
-# The main repo's checked-out branch is left untouched.
+# Alfred "review" action: given a GitHub PR URL or <project>#<n> shorthand
+# (and optional prompt), open a terminal, check out the PR branch into a
+# worktree under .worktrees/<pr-branch> inside the local clone, and run
+# claude there. The main repo's checked-out branch is left untouched.
 #
-# Usage (as called by Alfred): review.sh "<pr_url> [prompt...]"
+# Usage (as called by Alfred): review.sh "<pr_url_or_shorthand> [prompt...]"
 
 set -u
 
 input="${1-}"
 
-# Split input into URL (first whitespace-separated token) and prompt (remainder).
-url="${input%%[[:space:]]*}"
-if [ "$url" = "$input" ]; then
+# Split input into the locator (first whitespace-separated token) and the
+# prompt (remainder).
+locator="${input%%[[:space:]]*}"
+if [ "$locator" = "$input" ]; then
     prompt=""
 else
     prompt="${input#*[[:space:]]}"
@@ -23,17 +24,43 @@ err() {
     exit 1
 }
 
-if [[ "$url" =~ github\.com/([^/]+)/([^/]+)/pull/([0-9]+) ]]; then
+# Resolve a project name to a local path by scanning the project_dirs workflow
+# variable (colon-separated; ~ expanded). Exact directory-name match only.
+find_project_dir() {
+    local name="$1"
+    local matches=()
+    local IFS=:
+    local base candidate
+    for base in ${project_dirs:-}; do
+        base="${base/#\~/$HOME}"
+        candidate="$base/$name"
+        if [ -d "$candidate" ]; then
+            matches+=("$candidate")
+        fi
+    done
+    if [ ${#matches[@]} -eq 0 ]; then
+        err "No project named '$name' in project_dirs"
+    elif [ ${#matches[@]} -gt 1 ]; then
+        err "Multiple projects named '$name': ${matches[*]}"
+    fi
+    printf '%s\n' "${matches[0]}"
+}
+
+if [[ "$locator" =~ github\.com/([^/]+)/([^/]+)/pull/([0-9]+) ]]; then
     owner="${BASH_REMATCH[1]}"
     repo="${BASH_REMATCH[2]}"
     pr_number="${BASH_REMATCH[3]}"
+    repo_path="$HOME/src/github.com/$owner/$repo"
+    if [ ! -d "$repo_path" ]; then
+        err "Repo not found at $repo_path. Clone it first."
+    fi
+elif [[ "$locator" =~ ^([^#/[:space:]]+)#([0-9]+)$ ]]; then
+    name="${BASH_REMATCH[1]}"
+    pr_number="${BASH_REMATCH[2]}"
+    repo_path="$(find_project_dir "$name")" || exit 1
+    repo="$(basename "$repo_path")"
 else
-    err "Not a recognizable GitHub PR URL: $url"
-fi
-
-repo_path="$HOME/src/github.com/$owner/$repo"
-if [ ! -d "$repo_path" ]; then
-    err "Repo not found at $repo_path. Clone it first."
+    err "Expected a GitHub PR URL or <project>#<n> shorthand. Got: $locator"
 fi
 
 title="$repo PR #$pr_number"

@@ -87,22 +87,43 @@ Example:
 
 1. Invoke Alfred (Cmd+Space or your hotkey)
 2. Type `gh` followed by a space
-3. Start typing to filter projects
-4. Press Enter to open the GitHub repo in your browser
-
-#### Review a GitHub PR
-
-1. Invoke Alfred (Cmd+Space or your hotkey)
-2. Type `review` followed by a space, then paste a GitHub PR URL
-3. Optionally add a prompt after the URL — it will be passed to Claude Code as the initial prompt
-4. Press Enter
-
-The action expects the repo cloned at `~/src/github.com/<owner>/<repo>`. It runs `gh pr checkout <number>` inside that directory and then launches `claude` (with your prompt, if any).
+3. Either start typing to filter projects (Enter opens the repo root), or
+   type `<project>#<n>` to jump straight to issue/PR `<n>` (GitHub
+   redirects issue numbers to the PR view if the number is a PR)
 
 Example:
 
 ```text
+gh wayfinder#171
+```
+
+Matches an exact project directory name in your configured `project_dirs`.
+Ambiguous names (e.g. two checkouts of the same repo under different
+parents) surface an error rather than guessing.
+
+#### Review a GitHub PR
+
+1. Invoke Alfred (Cmd+Space or your hotkey)
+2. Type `review` followed by a space
+3. Provide either:
+   - a full PR URL (e.g. `https://github.com/wanderu/infrastructure-as-code/pull/193`), or
+   - a `<project>#<n>` shorthand (e.g. `infrastructure-as-code#193`) that
+     resolves against your configured `project_dirs`
+4. Optionally add a prompt after the locator — it will be passed to
+   Claude Code as the initial prompt
+5. Press Enter
+
+The action expects the repo cloned at `~/src/github.com/<owner>/<repo>`
+(for the URL form) or under one of your `project_dirs` (for the
+shorthand). It creates a `.worktrees/<branch>` git worktree inside the
+local clone, runs `gh pr checkout <number>` there, then launches
+`claude` with your prompt — your main checkout is left untouched.
+
+Examples:
+
+```text
 review https://github.com/wanderu/infrastructure-as-code/pull/193 is this going to cause the database to be deleted and recreated?
+review infrastructure-as-code#193 is this going to cause the database to be deleted and recreated?
 ```
 
 #### Modifiers

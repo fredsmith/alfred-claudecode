@@ -6,8 +6,12 @@ Reads project_dirs workflow variable and enumerates subdirectories.
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
+
+
+ISSUE_SHORTHAND_RE = re.compile(r"^([^\s#/]+)#(\d+)$")
 
 
 def get_project_dirs():
@@ -113,12 +117,53 @@ def format_alfred_items(projects, action, base_dirs_configured, base_dirs_found)
     return {"items": items}
 
 
+def issue_shorthand_items(projects, name, number):
+    """Build the script-filter items for a `<name>#<n>` query (github action).
+
+    Exact directory-name match only. Ambiguous matches surface as an error
+    item rather than a picker, by design.
+    """
+    matches = [p for p in projects if p["name"] == name]
+
+    if len(matches) == 1:
+        project = matches[0]
+        return [{
+            "uid": f"{project['path']}#{number}",
+            "title": f"{project['name']} #{number}",
+            "subtitle": f"Open issue/PR #{number} on GitHub",
+            "arg": project["path"],
+            "variables": {"number": number},
+            "icon": {"path": "icon.png"},
+            "valid": True
+        }]
+
+    if not matches:
+        return [{
+            "title": f"No project named '{name}'",
+            "subtitle": "Exact directory name match required",
+            "valid": False
+        }]
+
+    return [{
+        "title": f"Multiple projects named '{name}'",
+        "subtitle": "; ".join(p["path"] for p in matches),
+        "valid": False
+    }]
+
+
 def main():
     action = os.environ.get("action", "vscode")
     query = sys.argv[1] if len(sys.argv) > 1 else ""
 
     configured_dirs, valid_dirs = get_project_dirs()
     projects = list_projects(valid_dirs)
+
+    shorthand = ISSUE_SHORTHAND_RE.match(query.strip()) if action == "github" else None
+    if shorthand:
+        items = issue_shorthand_items(projects, shorthand.group(1), shorthand.group(2))
+        print(json.dumps({"items": items}))
+        return
+
     filtered = filter_projects(projects, query)
 
     result = format_alfred_items(
