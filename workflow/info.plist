@@ -333,7 +333,15 @@ fi</string>
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>script</key>
-				<string>cd "$1" &amp;&amp; url=$(git remote get-url origin 2&gt;/dev/null | sed 's/git@github.com:/https:\/\/github.com\//' | sed 's/\.git$//') &amp;&amp; [ -n "$url" ] &amp;&amp; open "$url" || open "https://github.com"</string>
+				<string>cd "$1" || exit 1
+url=$(git remote get-url origin 2&gt;/dev/null | sed 's/git@github.com:/https:\/\/github.com\//' | sed 's/\.git$//')
+if [ -z "$url" ]; then
+    open "https://github.com"
+elif [ -n "${number-}" ]; then
+    open "$url/issues/$number"
+else
+    open "$url"
+fi</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
