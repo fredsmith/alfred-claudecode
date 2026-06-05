@@ -82,6 +82,9 @@ if test -z "$pr_branch"
     exec fish -l
 end
 
+echo "Fetching latest refs from origin (so PR-review diffs use a current base)..."
+git fetch --prune origin
+
 set worktree_path ".worktrees/$pr_branch"
 
 git worktree prune
