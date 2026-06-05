@@ -93,6 +93,8 @@ if [ "$ACTION" = "review" ]; then
     {
         echo '#!/bin/bash'
         printf 'cd %q || { echo "ERROR: cd failed"; exec bash; }\n' "$REPO_PATH"
+        printf 'echo "Fetching latest refs from origin (so PR-review diffs use a current base)..."\n'
+        printf 'git fetch --prune origin\n'
         printf 'echo "Checking out PR #%s..."\n' "$PR_NUMBER"
         printf 'gh pr checkout %s || { echo "ERROR: gh pr checkout failed"; exec bash; }\n' "$PR_NUMBER"
         echo 'echo'
