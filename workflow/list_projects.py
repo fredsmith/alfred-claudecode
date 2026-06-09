@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 
-ISSUE_SHORTHAND_RE = re.compile(r"^([^\s#/]+)#(\d+)$")
+ISSUE_SHORTHAND_RE = re.compile(r"^(?:[^\s#]+/)?([^\s#/]+)#(\d+)$")
 
 
 def get_project_dirs():
