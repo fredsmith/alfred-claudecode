@@ -94,7 +94,7 @@ Rules:
 - Deliver all feedback through the GitHub review interface (use \`gh\` for inline comments, review summaries, and suggested changes) rather than by modifying the working tree.
 - Prefer concrete suggested-change blocks over prose when proposing edits.
 
-Acknowledge these guidelines and wait for further instruction before starting the review."
+Do not begin the review yet, and do not restate these rules. Reply with a single brief line to confirm you're ready, then wait for my instructions."
 
     if [ -n "$PROMPT" ]; then
         GUIDELINES="$GUIDELINES
