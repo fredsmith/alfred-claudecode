@@ -87,6 +87,21 @@ if [ "$ACTION" = "review" ]; then
         exit 1
     fi
 
+    GUIDELINES="You are reviewing the pull request $URL, which is checked out in this working directory. Your job is to review the code, not change it.
+
+Rules:
+- Do not edit, stage, or commit any files in this working directory.
+- Deliver all feedback through the GitHub review interface (use \`gh\` for inline comments, review summaries, and suggested changes) rather than by modifying the working tree.
+- Prefer concrete suggested-change blocks over prose when proposing edits.
+
+Acknowledge these guidelines and wait for further instruction before starting the review."
+
+    if [ -n "$PROMPT" ]; then
+        GUIDELINES="$GUIDELINES
+
+$PROMPT"
+    fi
+
     # Write the in-terminal commands to a temp script so the prompt can be
     # safely shell-quoted. On error we keep the window open by exec'ing bash.
     TMP_SCRIPT=$(mktemp --suffix=.sh)
@@ -98,11 +113,7 @@ if [ "$ACTION" = "review" ]; then
         printf 'echo "Checking out PR #%s..."\n' "$PR_NUMBER"
         printf 'gh pr checkout %s || { echo "ERROR: gh pr checkout failed"; exec bash; }\n' "$PR_NUMBER"
         echo 'echo'
-        if [ -n "$PROMPT" ]; then
-            printf 'claude %q\n' "$PROMPT"
-        else
-            echo 'claude'
-        fi
+        printf 'claude %q\n' "$GUIDELINES"
         printf 'rm -f %q\n' "$TMP_SCRIPT"
     } > "$TMP_SCRIPT"
     chmod +x "$TMP_SCRIPT"
@@ -199,7 +210,7 @@ case "$ACTION" in
         echo "  cc                          Open in Claude Code (terminal)"
         echo "  gh                          Open GitHub repo in browser"
         echo "  fm                          Open in file manager"
-        echo "  review <pr-url> [prompt]    Check out a GitHub PR locally and launch Claude Code"
+        echo "  review <pr-url> [prompt]    Check out a GitHub PR locally and launch Claude Code primed with reviewer guidelines (optional prompt appended)"
         exit 1
         ;;
 esac
