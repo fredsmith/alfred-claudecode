@@ -9,7 +9,8 @@ tasks:
     desc: Build the Alfred workflow package
     cmds:
       - mkdir -p {{.BUILD_DIR}}
-      - cd workflow && zip -r ../{{.BUILD_DIR}}/{{.WORKFLOW_NAME}}.alfredworkflow .
+      - rm -f {{.BUILD_DIR}}/{{.WORKFLOW_NAME}}.alfredworkflow
+      - cd workflow && zip -r ../{{.BUILD_DIR}}/{{.WORKFLOW_NAME}}.alfredworkflow . -x '*__pycache__*' '*.pyc' '*.DS_Store'
     sources:
       - workflow/**/*
     generates:

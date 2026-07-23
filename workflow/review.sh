@@ -81,6 +81,7 @@ if test -z "$pr_branch"
     echo "ERROR: could not determine head branch for PR #$REVIEW_PR"
     exec fish -l
 end
+set pr_url (gh pr view $REVIEW_PR --json url -q .url 2>/dev/null)
 
 echo "Fetching latest refs from origin (so PR-review diffs use a current base)..."
 git fetch --prune origin
@@ -111,11 +112,22 @@ if not gh pr checkout $REVIEW_PR
 end
 
 echo
+set guidelines "You are reviewing the pull request $pr_url, which is checked out in this git worktree. Your job is to review the code, not change it.
+
+Rules:
+- Do not edit, stage, or commit any files in this worktree.
+- Deliver all feedback through the GitHub review interface (use `gh` for inline comments, review summaries, and suggested changes) rather than by modifying the working tree.
+- Prefer concrete suggested-change blocks over prose when proposing edits.
+
+Do not begin the review yet, and do not restate these rules. Reply with a single brief line to confirm you're ready, then wait for my instructions."
+
 if test -n "$REVIEW_PROMPT"
-    claude "$REVIEW_PROMPT"
-else
-    claude
+    set guidelines "$guidelines
+
+$REVIEW_PROMPT"
 end
+
+claude "$guidelines"
 FISH
 
 if [ -d "/Applications/Ghostty.app" ]; then

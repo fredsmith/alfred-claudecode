@@ -414,7 +414,7 @@ Launch VS Code or Claude Code in your project directories.
 - `vs` - Open project in VS Code
 - `cc` - Open project in Claude Code (Terminal)
 - `gh` - Open project on GitHub
-- `review &lt;pr-url&gt; [prompt]` - Check out the PR branch in `~/src/github.com/&lt;owner&gt;/&lt;repo&gt;` and launch Claude Code with the optional prompt
+- `review &lt;pr-url&gt; [prompt]` - Check out the PR branch in a worktree under `~/src/github.com/&lt;owner&gt;/&lt;repo&gt;` and launch Claude Code primed with reviewer guidelines (any optional prompt is appended as extra instruction)
 
 ### Configuration
 Set the `project_dirs` workflow variable to a colon-separated list of directories:
