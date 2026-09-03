@@ -17,6 +17,7 @@ A project launcher for quickly opening your projects in VS Code, Claude Code (te
 | Claude Code launcher | `cc` keyword | `claude-launcher cc` |
 | GitHub launcher | `gh` keyword | `claude-launcher gh` |
 | PR review launcher | `review` keyword | `claude-launcher review` |
+| Issue implementation launcher | `implement-issue` keyword | — |
 | File manager | Cmd+Enter modifier | `claude-launcher fm` |
 | Configuration | Alfred workflow variables | `claude-launcher-config` |
 | Fuzzy search | ✓ | ✓ |
@@ -30,8 +31,8 @@ A project launcher for quickly opening your projects in VS Code, Claude Code (te
 
 - [Alfred](https://www.alfredapp.com/) with Powerpack
 - [VS Code](https://code.visualstudio.com/) (for `vs` keyword)
-- [Claude Code CLI](https://claude.ai/code) (for `cc` and `review` keywords)
-- [GitHub CLI](https://cli.github.com/) (`gh`, for `review` keyword)
+- [Claude Code CLI](https://claude.ai/code) (for `cc`, `review`, and `implement-issue` keywords)
+- [GitHub CLI](https://cli.github.com/) (`gh`, for `review` and `implement-issue` keywords)
 - Python 3 (included with macOS)
 
 ### Installation
@@ -124,6 +125,32 @@ Examples:
 ```text
 review https://github.com/wanderu/infrastructure-as-code/pull/193 is this going to cause the database to be deleted and recreated?
 review infrastructure-as-code#193 is this going to cause the database to be deleted and recreated?
+```
+
+#### Implement a GitHub issue
+
+1. Invoke Alfred (Cmd+Space or your hotkey)
+2. Type `implement-issue` followed by a space
+3. Provide either:
+   - a full issue URL (e.g. `https://github.com/wanderu/actions/issues/357`), or
+   - a `[<owner>/]<project>#<n>` shorthand (e.g. `actions#357`) that
+     resolves against your configured `project_dirs`
+4. Optionally add a prompt after the locator — it is appended to the
+   initial prompt
+5. Press Enter
+
+The action expects the repo cloned at `~/src/github.com/<owner>/<repo>`
+(for the URL form) or under one of your `project_dirs` (for the
+shorthand). It fetches from origin, switches the clone to the repo's
+default branch and fast-forwards it, reads the issue title and body with
+`gh`, then launches `claude` with a prompt telling it to branch into a
+worktree, push a draft PR, run `/code-review`, and address the findings.
+
+Examples:
+
+```text
+implement-issue https://github.com/wanderu/actions/issues/357
+implement-issue actions#357 keep the change scoped to the composite action
 ```
 
 #### Modifiers
