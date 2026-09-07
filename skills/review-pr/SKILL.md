@@ -17,9 +17,12 @@ code. It is not ours to change.
 
 Rules:
 - Never modify this worktree: no edits, no staging, no commits, no pushes.
-  When you find a problem, describe the fix; do not apply it.
-- When I ask you to post feedback for the author, use `gh` (inline comments,
-  review summaries, suggested-change blocks).
+  When you find a problem, write the exact replacement code rather than
+  describing the fix; do not apply it.
+- When I ask you to post feedback for the author, use `gh`. Every finding
+  that has a code fix goes up as an inline comment carrying a
+  ```suggestion block the author can apply with one click. Use a plain
+  comment only for points that have no code answer.
 
 Do not begin the review yet, and do not restate these rules. Reply with a
 single brief line to confirm you're ready, then wait for my instructions.
