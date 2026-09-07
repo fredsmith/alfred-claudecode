@@ -193,12 +193,15 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>script</key>
-				<string>if [ -d "/Applications/Ghostty.app" ]; then
-    nohup /Applications/Ghostty.app/Contents/MacOS/ghostty --title="$(basename "$1")" --working-directory="$1" -e fish -lic "claude" &gt; /dev/null 2&gt;&amp;1 &amp;
+				<string># No --title for Ghostty: a Ghostty-set title is locked and ignores every
+# later title change, so claude could never rename the tab. --name lets
+# claude own the title (and de-duplicates it against other live sessions).
+if [ -d "/Applications/Ghostty.app" ]; then
+    nohup /Applications/Ghostty.app/Contents/MacOS/ghostty --working-directory="$1" -e fish -lic "claude --name \"$(basename "$1")\"" &gt; /dev/null 2&gt;&amp;1 &amp;
 else
     osascript -e "tell application \"Terminal\"
         activate
-        do script \"cd '$1' &amp;&amp; claude\"
+        do script \"cd '$1' &amp;&amp; claude --name '$(basename "$1")'\"
     end tell"
 fi</string>
 				<key>scriptargtype</key>
@@ -475,13 +478,17 @@ Launch VS Code or Claude Code in your project directories.
 - `vs` - Open project in VS Code
 - `cc` - Open project in Claude Code (Terminal)
 - `gh` - Open project on GitHub
-- `review &lt;pr-url&gt; [prompt]` - Check out the PR branch in a worktree under `~/src/github.com/&lt;owner&gt;/&lt;repo&gt;` and launch Claude Code primed with reviewer guidelines (any optional prompt is appended as extra instruction)
-- `implement-issue &lt;issue-url&gt; [prompt]` - Bring the local clone's default branch up to date and launch Claude Code primed with the issue text, told to branch into a worktree, push a draft PR, and self-review it (any optional prompt is appended as extra instruction)
+- `review &lt;pr-url&gt; [prompt]` - Start Claude Code in a `.claude/worktrees/pr-&lt;n&gt;` worktree holding the PR head and run the `/review-pr` skill (any optional prompt is appended as extra instruction)
+- `implement-issue &lt;issue-url&gt; [prompt]` - Start Claude Code in a fresh `.claude/worktrees/issue-&lt;n&gt;` worktree and run the `/implement-issue` skill: implement, push a draft PR, self-review (any optional prompt is appended as extra instruction)
+
+`review` and `implement-issue` need the `review-pr` and `implement-issue` skills installed in `~/.claude/skills` (`task install-skills` in the repo).
 
 ### Configuration
 Set the `project_dirs` workflow variable to a colon-separated list of directories:
 
 Example: `~/src/github.com/fredsmith:~/claude-working`
+
+Set `launch_mode` to `window` (open a terminal) or `background` (`claude --bg`, then manage sessions with `claude agents`).
 
 ### Modifiers
 - `Cmd+Enter` - Reveal project in Finder</string>
@@ -588,9 +595,39 @@ Example: `~/src/github.com/fredsmith:~/claude-working`
 			<key>variable</key>
 			<string>project_dirs</string>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string>window</string>
+				<key>pairs</key>
+				<array>
+					<array>
+						<string>Terminal window</string>
+						<string>window</string>
+					</array>
+					<array>
+						<string>Background session (claude agents)</string>
+						<string>background</string>
+					</array>
+				</array>
+				<key>required</key>
+				<false/>
+			</dict>
+			<key>description</key>
+			<string>How `review` and `implement-issue` start Claude Code. "Terminal window" opens a Ghostty/Terminal window. "Background session" runs `claude --bg` and leaves the session for `claude agents`.</string>
+			<key>label</key>
+			<string>Launch Mode</string>
+			<key>type</key>
+			<string>popupbutton</string>
+			<key>variable</key>
+			<string>launch_mode</string>
+		</dict>
 	</array>
 	<key>variables</key>
 	<dict>
+		<key>launch_mode</key>
+		<string>window</string>
 		<key>project_dirs</key>
 		<string></string>
 	</dict>
