@@ -53,6 +53,18 @@ Download the latest `.alfredworkflow` file from the [Releases](https://github.co
 
 3. Double-click `Claude-Code-Launcher.alfredworkflow` to install
 
+#### Skills (required for `review` and `implement-issue`)
+
+Those two keywords hand Claude a slash command, so the matching skills must be
+installed as personal skills. From the repo checkout:
+
+```bash
+task install-skills   # symlinks skills/* into ~/.claude/skills
+```
+
+Once installed, `/review-pr <pr>` and `/implement-issue <issue>` also work from
+any Claude Code session and from the `claude agents` dispatch box.
+
 ### Configuration
 
 After installing, configure your project directories:
@@ -67,6 +79,16 @@ Example:
 ```text
 ~/src/github.com/fredsmith:~/claude-working:~/projects
 ```
+
+**Launch Mode** controls how `review` and `implement-issue` start Claude Code:
+
+- **Terminal window** (default): opens Ghostty (or Terminal.app) running `claude`.
+- **Background session**: runs `claude --bg` and returns immediately. Open
+  `claude agents` to see every session grouped by state, peek at what it is
+  waiting on, and attach.
+
+In both modes the session is named after the repo and PR/issue number, and
+Claude keeps the terminal title in sync with that name.
 
 ### Usage
 
@@ -116,9 +138,11 @@ parents) surface an error rather than guessing.
 
 The action expects the repo cloned at `~/src/github.com/<owner>/<repo>`
 (for the URL form) or under one of your `project_dirs` (for the
-shorthand). It creates a `.worktrees/<branch>` git worktree inside the
-local clone, runs `gh pr checkout <number>` there, then launches
-`claude` with your prompt — your main checkout is left untouched.
+shorthand). It launches `claude --worktree "#<n>"`, which fetches the PR
+head into `.claude/worktrees/pr-<n>` inside the clone, and passes
+`/review-pr <pr> [prompt]` as the initial prompt. Your main checkout is
+left untouched. Add `.claude/worktrees/` to your global gitignore if you
+don't want the worktrees to show up as untracked files.
 
 Examples:
 
@@ -141,10 +165,12 @@ review infrastructure-as-code#193 is this going to cause the database to be dele
 
 The action expects the repo cloned at `~/src/github.com/<owner>/<repo>`
 (for the URL form) or under one of your `project_dirs` (for the
-shorthand). It fetches from origin, switches the clone to the repo's
-default branch and fast-forwards it, reads the issue title and body with
-`gh`, then launches `claude` with a prompt telling it to branch into a
-worktree, push a draft PR, run `/code-review`, and address the findings.
+shorthand). It launches `claude --worktree issue-<n>`, which creates
+`.claude/worktrees/issue-<n>` branched from the repo's default branch on
+origin, and passes `/implement-issue <issue> [prompt]` as the initial
+prompt. The skill reads the issue with `gh`, renames the branch, pushes a
+draft PR, runs `/code-review`, and addresses the findings. Your main
+checkout is never switched or fast-forwarded.
 
 Examples:
 
@@ -169,7 +195,11 @@ If `code` is not in `/usr/local/bin/`, edit the workflow:
 
 #### Terminal App
 
-The workflow uses Ghostty if installed, otherwise falls back to the default Terminal app. To use a different terminal (like iTerm), edit the "Open Claude Code" action's script.
+The workflow uses Ghostty if installed, otherwise falls back to the default Terminal app. To use a different terminal (like iTerm), edit the "Open Claude Code" action's script and the `launch_claude` function in `workflow/launch-common.sh`.
+
+Do not pass `--title` to Ghostty. A title set that way is locked, so Claude
+can never update the tab title and every session ends up with the launch
+title. Titles come from `claude --name` instead.
 
 ---
 

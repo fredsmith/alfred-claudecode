@@ -23,6 +23,13 @@ tasks:
     cmds:
       - open {{.BUILD_DIR}}/{{.WORKFLOW_NAME}}.alfredworkflow
 
+  install-skills:
+    desc: Symlink the review-pr and implement-issue skills into ~/.claude/skills
+    cmds:
+      - mkdir -p ~/.claude/skills
+      - for s in skills/*/; do n=$(basename "$s"); ln -sfn "$PWD/skills/$n" ~/.claude/skills/"$n"; done
+      - ls -l ~/.claude/skills
+
   install-rofi:
     desc: Install the rofi launcher integration (Linux)
     cmds:
