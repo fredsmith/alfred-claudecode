@@ -65,6 +65,35 @@ task install-skills   # symlinks skills/* into ~/.claude/skills
 Once installed, `/review-pr <pr>` and `/implement-issue <issue>` also work from
 any Claude Code session and from the `claude agents` dispatch box.
 
+#### Hooks (recommended)
+
+`review` and `implement-issue` both start Claude with `--worktree`. Left to
+itself, `git worktree add -b <name>` branches from whatever the main checkout's
+HEAD happens to be — which is routinely an old or already-merged branch, so the
+session starts on a base that was never current. The `WorktreeCreate` hook
+fetches `origin` and branches from its default branch instead:
+
+```bash
+task install-hooks   # symlinks hooks/*.sh into ~/.claude/hooks
+```
+
+Then point `WorktreeCreate` at it in `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "WorktreeCreate": [
+      { "hooks": [{ "type": "command",
+                    "command": "/Users/<you>/.claude/hooks/worktree-create.sh" }] }
+    ]
+  }
+}
+```
+
+Worktrees land at `<repo>/.worktrees/<branch>`. A repo that needs different
+placement can ship its own `.claude/hooks/worktree-create.sh`, which takes
+precedence — but it then owns keeping the freshness logic in sync.
+
 ### Configuration
 
 After installing, configure your project directories:

@@ -30,6 +30,13 @@ tasks:
       - for s in skills/*/; do n=$(basename "$s"); ln -sfn "$PWD/skills/$n" ~/.claude/skills/"$n"; done
       - ls -l ~/.claude/skills
 
+  install-hooks:
+    desc: Symlink the Claude Code hooks into ~/.claude/hooks
+    cmds:
+      - mkdir -p ~/.claude/hooks
+      - for h in hooks/*.sh; do n=$(basename "$h"); ln -sfn "$PWD/hooks/$n" ~/.claude/hooks/"$n"; done
+      - ls -l ~/.claude/hooks
+
   install-rofi:
     desc: Install the rofi launcher integration (Linux)
     cmds:
