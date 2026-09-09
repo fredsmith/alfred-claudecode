@@ -129,8 +129,8 @@ parents) surface an error rather than guessing.
 1. Invoke Alfred (Cmd+Space or your hotkey)
 2. Type `review` followed by a space
 3. Provide either:
-   - a full PR URL (e.g. `https://github.com/wanderu/infrastructure-as-code/pull/193`), or
-   - a `<project>#<n>` shorthand (e.g. `infrastructure-as-code#193`) that
+   - a full PR URL (e.g. `https://github.com/example-org/terraform-infra/pull/193`), or
+   - a `<project>#<n>` shorthand (e.g. `terraform-infra#193`) that
      resolves against your configured `project_dirs`
 4. Optionally add a prompt after the locator — it will be passed to
    Claude Code as the initial prompt
@@ -147,8 +147,8 @@ don't want the worktrees to show up as untracked files.
 Examples:
 
 ```text
-review https://github.com/wanderu/infrastructure-as-code/pull/193 is this going to cause the database to be deleted and recreated?
-review infrastructure-as-code#193 is this going to cause the database to be deleted and recreated?
+review https://github.com/example-org/terraform-infra/pull/193 is this going to cause the database to be deleted and recreated?
+review terraform-infra#193 is this going to cause the database to be deleted and recreated?
 ```
 
 #### Implement a GitHub issue
@@ -156,8 +156,8 @@ review infrastructure-as-code#193 is this going to cause the database to be dele
 1. Invoke Alfred (Cmd+Space or your hotkey)
 2. Type `implement-issue` followed by a space
 3. Provide either:
-   - a full issue URL (e.g. `https://github.com/wanderu/actions/issues/357`), or
-   - a `[<owner>/]<project>#<n>` shorthand (e.g. `actions#357`) that
+   - a full issue URL (e.g. `https://github.com/example-org/shared-actions/issues/357`), or
+   - a `[<owner>/]<project>#<n>` shorthand (e.g. `shared-actions#357`) that
      resolves against your configured `project_dirs`
 4. Optionally add a prompt after the locator — it is appended to the
    initial prompt
@@ -175,8 +175,8 @@ checkout is never switched or fast-forwarded.
 Examples:
 
 ```text
-implement-issue https://github.com/wanderu/actions/issues/357
-implement-issue actions#357 keep the change scoped to the composite action
+implement-issue https://github.com/example-org/shared-actions/issues/357
+implement-issue shared-actions#357 keep the change scoped to the composite action
 ```
 
 #### Modifiers
