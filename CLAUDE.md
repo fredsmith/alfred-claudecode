@@ -22,6 +22,9 @@ task install-alfred
 # Symlink the review-pr / implement-issue skills into ~/.claude/skills
 task install-skills
 
+# Symlink the Claude Code hooks into ~/.claude/hooks
+task install-hooks
+
 # Install the rofi launcher integration (Linux only)
 task install-rofi
 ```
@@ -46,6 +49,11 @@ The workflow uses the `project_dirs` workflow variable (colon-separated paths) t
 
 ### Skills
 - `skills/review-pr/SKILL.md`, `skills/implement-issue/SKILL.md` - The prompts the launchers used to inline, as personal Claude Code skills. `task install-skills` symlinks them into `~/.claude/skills` so they work from Alfred, from any session, and from the `claude agents` dispatch box.
+
+### Hooks
+- `hooks/worktree-create.sh` - `WorktreeCreate` hook. Both launchers pass `--worktree`, and `git worktree add -b <name>` with no base ref branches from the main checkout's HEAD, which is routinely an old or already-merged branch. The hook fetches `origin` and branches from its default branch, so a session never starts on a base that was never current. Falls back through `origin/main`, `origin/master`, then local HEAD, so local-only and offline repos still work. `--no-track` keeps git from reporting the branch as "ahead of main" and refusing a bare push. Worktrees land at `<repo>/.worktrees/<branch>`.
+
+`task install-hooks` symlinks `hooks/*.sh` into `~/.claude/hooks`, so this checkout is the source of truth and `git pull` is the update path. A repo shipping its own `.claude/hooks/worktree-create.sh` overrides it and owns keeping the freshness logic in sync — worth doing only when that repo needs different worktree placement.
 
 ### Rofi Integration (Linux)
 - `rofi/claude-launcher` - Main bash script handling actions (vs/cc/gh/fm)
