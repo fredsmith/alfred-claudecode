@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>bundleid</key>
-	<string>com.fredsmith.alfred-claudecode</string>
+	<string>bz.smith.fred.alfred-claudecode</string>
 	<key>connections</key>
 	<dict>
 		<key>A1B2C3D4-CC-FILTER</key>
