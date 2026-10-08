@@ -488,7 +488,7 @@ Set the `project_dirs` workflow variable to a colon-separated list of directorie
 
 Example: `~/src/github.com/fredsmith:~/claude-working`
 
-Set `launch_mode` to `window` (open a terminal) or `background` (`claude --bg`, then manage sessions with `claude agents`).
+Set `launch_mode` to `window` (open a terminal), `background` (`claude --bg`, then manage sessions with `claude agents`), or `wopr` (start the session through the wopr service; set `WOPR_URL` for a wopr on another host).
 
 ### Modifiers
 - `Cmd+Enter` - Reveal project in Finder</string>
@@ -610,12 +610,16 @@ Set `launch_mode` to `window` (open a terminal) or `background` (`claude --bg`, 
 						<string>Background session (claude agents)</string>
 						<string>background</string>
 					</array>
+					<array>
+						<string>wopr service</string>
+						<string>wopr</string>
+					</array>
 				</array>
 				<key>required</key>
 				<false/>
 			</dict>
 			<key>description</key>
-			<string>How `review` and `implement-issue` start Claude Code. "Terminal window" opens a Ghostty/Terminal window. "Background session" runs `claude --bg` and leaves the session for `claude agents`.</string>
+			<string>How `review` and `implement-issue` start Claude Code. "Terminal window" opens a Ghostty/Terminal window. "Background session" runs `claude --bg` and leaves the session for `claude agents`. "wopr service" starts the session through the local wopr service: reviews run the techops reviewer and post an approve/request-changes review, implementations open a draft PR. It needs no personal skills.</string>
 			<key>label</key>
 			<string>Launch Mode</string>
 			<key>type</key>

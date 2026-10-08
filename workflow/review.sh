@@ -44,9 +44,16 @@ else
     err "Expected a GitHub PR URL or <project>#<n> shorthand. Got: $locator"
 fi
 
+title="$repo PR #$pr_number"
+
+if [ "${launch_mode:-window}" = "wopr" ]; then
+    body="$(python3 -c 'import json,sys; print(json.dumps({"pr": sys.argv[1], "prompt": sys.argv[2]}))' "$pr_ref" "$prompt")"
+    launch_wopr /review-pr "$body" "$title"
+    exit
+fi
+
 require_skill review-pr
 
-title="$repo PR #$pr_number"
 initial_prompt="/review-pr $pr_ref"
 if [ -n "$prompt" ]; then
     initial_prompt="$initial_prompt $prompt"
