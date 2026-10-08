@@ -53,10 +53,11 @@ Download the latest `.alfredworkflow` file from the [Releases](https://github.co
 
 3. Double-click `Claude-Code-Launcher.alfredworkflow` to install
 
-#### Skills (required for `review` and `implement-issue`)
+#### Skills (required for `review` and `implement-issue` outside wopr mode)
 
-Those two keywords hand Claude a slash command, so the matching skills must be
-installed as personal skills. From the repo checkout:
+In the window and background launch modes those two keywords hand Claude a
+slash command, so the matching skills must be installed as personal skills.
+The `wopr` launch mode does not need them. From the repo checkout:
 
 ```bash
 task install-skills   # symlinks skills/* into ~/.claude/skills
@@ -115,9 +116,20 @@ Example:
 - **Background session**: runs `claude --bg` and returns immediately. Open
   `claude agents` to see every session grouped by state, peek at what it is
   waiting on, and attach.
+- **wopr service**: POSTs the PR or issue to the local
+  [wopr](https://github.com/fredsmith/agentweb) service, which picks an account
+  and starts the session itself. Reviews run the techops reviewer and post an
+  approve/request-changes review; implementations open a draft PR. Alfred
+  shows a notification with the session id and account. This mode does not use
+  the personal skills, so the Skills section above does not apply.
 
-In both modes the session is named after the repo and PR/issue number, and
-Claude keeps the terminal title in sync with that name.
+In the window and background modes the session is named after the repo and
+PR/issue number, and Claude keeps the terminal title in sync with that name.
+
+wopr is reached at `http://127.0.0.1:48080` by default. Set `WOPR_URL` in the
+workflow environment variables to use a wopr on another host. The bearer token
+comes from `CLAUDE_API_TOKEN` in the Alfred workflow environment, or failing
+that from the `CLAUDE_API_TOKEN=` line of `~/.config/wopr/env`.
 
 ### Usage
 
