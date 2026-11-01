@@ -31,7 +31,8 @@ A project launcher for quickly opening your projects in VS Code, Claude Code (te
 
 - [Alfred](https://www.alfredapp.com/) with Powerpack
 - [VS Code](https://code.visualstudio.com/) (for `vs` keyword)
-- [Claude Code CLI](https://claude.ai/code) (for `cc`, `review`, and `implement-issue` keywords)
+- [Claude Desktop](https://claude.ai/download) (for `cc` with the default **cc Target**)
+- [Claude Code CLI](https://claude.ai/code) (for `review`, `implement-issue`, and `cc` in terminal mode)
 - [GitHub CLI](https://cli.github.com/) (`gh`, for `review` and `implement-issue` keywords)
 - Python 3 (included with macOS)
 
@@ -109,6 +110,13 @@ Example:
 ~/src/github.com/fredsmith:~/claude-working:~/projects
 ```
 
+**cc Target** controls where `cc` opens a project:
+
+- **Claude Desktop app** (default): starts a new Code session in the Claude
+  Desktop app with the project as its folder, via the app's
+  `claude://code/new?folder=<path>` deep link.
+- **Terminal window**: opens Ghostty (or Terminal.app) running `claude`.
+
 **Launch Mode** controls how `review` and `implement-issue` start Claude Code:
 
 - **Terminal window** (default): opens Ghostty (or Terminal.app) running `claude`.
@@ -133,7 +141,8 @@ Claude keeps the terminal title in sync with that name.
 1. Invoke Alfred (Cmd+Space or your hotkey)
 2. Type `cc` followed by a space
 3. Start typing to filter projects
-4. Press Enter to open in Terminal with Claude Code
+4. Press Enter to start a new Claude Desktop Code session in the project
+   (or a terminal running `claude`, per **cc Target**)
 
 #### Open on GitHub
 
