@@ -45,7 +45,7 @@ cd workflow && zip -r ../Claude-Code-Launcher.alfredworkflow .
 
 Never pass `--title` to Ghostty: a Ghostty-set title is locked and ignores every later title escape, so Claude can never rename the tab. Session titles come from `claude --name`.
 
-The workflow uses the `project_dirs` workflow variable (colon-separated paths) to find projects and `launch_mode` (`window` or `background`) to decide how sessions start.
+The workflow uses the `project_dirs` workflow variable (colon-separated paths) to find projects, `cc_target` (`desktop` or `terminal`) to decide whether `cc` opens a Claude Desktop Code session (`claude://code/new?folder=<urlencoded path>`) or a terminal, and `launch_mode` (`window`, `background`, or `wopr`) to decide how `review`/`implement-issue` sessions start.
 
 ### Skills
 - `skills/review-pr/SKILL.md`, `skills/implement-issue/SKILL.md` - The prompts the launchers used to inline, as personal Claude Code skills. `task install-skills` symlinks them into `~/.claude/skills` so they work from Alfred, from any session, and from the `claude agents` dispatch box.

@@ -193,7 +193,13 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>script</key>
-				<string># No --title for Ghostty: a Ghostty-set title is locked and ignores every
+				<string>if [ "${cc_target:-desktop}" = "desktop" ]; then
+    folder=$(/usr/bin/python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$1")
+    open "claude://code/new?folder=$folder&amp;source=alfred"
+    exit 0
+fi
+
+# No --title for Ghostty: a Ghostty-set title is locked and ignores every
 # later title change, so claude could never rename the tab. --name lets
 # claude own the title (and de-duplicates it against other live sessions).
 if [ -d "/Applications/Ghostty.app" ]; then
@@ -476,7 +482,7 @@ Launch VS Code or Claude Code in your project directories.
 
 ### Keywords
 - `vs` - Open project in VS Code
-- `cc` - Open project in Claude Code (Terminal)
+- `cc` - Open project in a new Claude Desktop Code session (or a terminal, see `cc_target`)
 - `gh` - Open project on GitHub
 - `review &lt;pr-url&gt; [prompt]` - Start Claude Code in a `.claude/worktrees/pr-&lt;n&gt;` worktree holding the PR head and run the `/review-pr` skill (any optional prompt is appended as extra instruction)
 - `implement-issue &lt;issue-url&gt; [prompt]` - Start Claude Code in a fresh `.claude/worktrees/issue-&lt;n&gt;` worktree and run the `/implement-issue` skill: implement, push a draft PR, self-review (any optional prompt is appended as extra instruction)
@@ -487,6 +493,8 @@ Launch VS Code or Claude Code in your project directories.
 Set the `project_dirs` workflow variable to a colon-separated list of directories:
 
 Example: `~/src/github.com/fredsmith:~/claude-working`
+
+Set `cc_target` to `desktop` (new Code session in the Claude Desktop app, rooted at the project) or `terminal` (run `claude` in Ghostty/Terminal).
 
 Set `launch_mode` to `window` (open a terminal), `background` (`claude --bg`, then manage sessions with `claude agents`), or `wopr` (start the session through the wopr service; set `WOPR_URL` for a wopr on another host).
 
@@ -599,6 +607,34 @@ Set `launch_mode` to `window` (open a terminal), `background` (`claude --bg`, th
 			<key>config</key>
 			<dict>
 				<key>default</key>
+				<string>desktop</string>
+				<key>pairs</key>
+				<array>
+					<array>
+						<string>Claude Desktop app</string>
+						<string>desktop</string>
+					</array>
+					<array>
+						<string>Terminal window</string>
+						<string>terminal</string>
+					</array>
+				</array>
+				<key>required</key>
+				<false/>
+			</dict>
+			<key>description</key>
+			<string>Where `cc` opens a project. "Claude Desktop app" starts a new Code session in Claude Desktop with the project as its folder. "Terminal window" runs `claude` in Ghostty/Terminal.</string>
+			<key>label</key>
+			<string>cc Target</string>
+			<key>type</key>
+			<string>popupbutton</string>
+			<key>variable</key>
+			<string>cc_target</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
 				<string>window</string>
 				<key>pairs</key>
 				<array>
@@ -634,6 +670,8 @@ Set `launch_mode` to `window` (open a terminal), `background` (`claude --bg`, th
 		<string>window</string>
 		<key>project_dirs</key>
 		<string></string>
+		<key>cc_target</key>
+		<string>desktop</string>
 	</dict>
 	<key>version</key>
 	<string>1.0.0</string>
