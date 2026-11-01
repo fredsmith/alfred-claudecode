@@ -6,7 +6,8 @@
 #   project_dirs  colon-separated project roots (~ expanded)
 #   launch_mode   "window" (default) opens a terminal running claude;
 #                 "background" runs `claude --bg` and leaves the session for
-#                 `claude agents`.
+#                 `claude agents`; "wopr" starts it through the wopr service.
+#   WOPR_URL      wopr base URL (default http://127.0.0.1:48080)
 
 # Alfred runs scripts with a minimal PATH; make the usual CLI locations visible.
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
@@ -54,6 +55,54 @@ require_skill() {
     local skill="$1"
     [ -e "$HOME/.claude/skills/$skill/SKILL.md" ] ||
         err "Skill /$skill is not installed. Run 'task install-skills' in the alfred-claudecode checkout."
+}
+
+wopr_url() {
+    echo "${WOPR_URL:-http://127.0.0.1:48080}"
+}
+
+wopr_token() {
+    if [ -n "${CLAUDE_API_TOKEN:-}" ]; then
+        echo "$CLAUDE_API_TOKEN"
+    elif [ -r "$HOME/.config/wopr/env" ]; then
+        sed -n -E "s/^(export[[:space:]]+)?CLAUDE_API_TOKEN=[\"']?([^\"']*)[\"']?[[:space:]]*$/\2/p" \
+            "$HOME/.config/wopr/env" | head -n 1
+    fi
+}
+
+# launch_wopr <route> <json body> <session name>: start the session through the
+# wopr service instead of a local claude process.
+launch_wopr() {
+    local route="$1" body="$2" name="$3"
+    local url token out status resp
+    url="$(wopr_url)$route"
+    token="$(wopr_token)"
+
+    local args=(-sS -m 120 -X POST -H "Content-Type: application/json" -H "X-Wopr-Source: alfred"
+                -w '\n%{http_code}' --data-binary "$body")
+    [ -n "$token" ] && args+=(-H "Authorization: Bearer $token")
+
+    if ! out="$(curl "${args[@]}" "$url" 2>&1)"; then
+        err "Could not reach wopr at $url:
+
+${out%$'\n'*}"
+    fi
+    status="${out##*$'\n'}"
+    resp="${out%$'\n'*}"
+
+    if [[ ! "$status" =~ ^2[0-9][0-9]$ ]]; then
+        local detail
+        detail="$(printf '%s' "$resp" | python3 -c 'import json,sys
+try: print(json.load(sys.stdin).get("error") or "")
+except Exception: pass' 2>/dev/null)"
+        err "wopr $route failed (HTTP $status): ${detail:-$resp}"
+    fi
+
+    local id account
+    id="$(printf '%s' "$resp" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("id") or "")' 2>/dev/null)"
+    account="$(printf '%s' "$resp" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("account") or "")' 2>/dev/null)"
+    notify "started $id as $account" "$name"
+    return 0
 }
 
 # launch_claude <dir> <session name> <worktree name or ""> <initial prompt>

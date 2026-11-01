@@ -43,9 +43,16 @@ else
     err "Expected a GitHub issue URL or [<owner>/]<project>#<n> shorthand. Got: $locator"
 fi
 
+title="$repo issue #$issue_number"
+
+if [ "${launch_mode:-window}" = "wopr" ]; then
+    body="$(python3 -c 'import json,sys; print(json.dumps({"issue": sys.argv[1], "prompt": sys.argv[2]}))' "$issue_ref" "$prompt")"
+    launch_wopr /implement-issue "$body" "$title"
+    exit
+fi
+
 require_skill implement-issue
 
-title="$repo issue #$issue_number"
 initial_prompt="/implement-issue $issue_ref"
 if [ -n "$prompt" ]; then
     initial_prompt="$initial_prompt $prompt"
